@@ -48,7 +48,9 @@ import ContainerControlByCompanyComponent from "./components/reports/container-c
 import PackagingSummaryComponent from "./components/reports/packaging-summary"
 import CommissionComponent from "./components/reports/commission-report"
 import PurchasesRefundsComponent from "./components/reports/purchases-refunds"
-
+import PurchasesByCompanyComponent from "./components/reports/purchases-by-company"
+import TaxesByCompanyComponent from "./components/reports/taxes-by-company"
+import SalesByClientComponent from "./components/reports/sales-by-client"
 
 const drawerWidth = 280;
 
@@ -247,6 +249,18 @@ function App() {
         history.push("/reports/purchases/refunds");
     }
 
+    const handlePurchasesByCompanyReportClick = () => {
+        history.push("/reports/purchases/by/company");
+    }
+
+    const handleTaxesByCompanyReportClick = () => {
+        history.push("/reports/taxes/by/company");
+    }
+
+    const handleSalesByClientReportClick = () => {
+        history.push("/reports/sales/by/client");
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline/>
@@ -430,6 +444,24 @@ function App() {
                                 </ListItemIcon>
                                 <ListItemText primary="Analisis Compras/Devoluciones"/>
                             </ListItem>
+                            <ListItem button key="cc-report" onClick={() => handlePurchasesByCompanyReportClick()}
+                                      className={classes.nested}>
+                                <ListItemIcon>
+                                </ListItemIcon>
+                                <ListItemText primary="Compras por Empresa"/>
+                            </ListItem>
+                            <ListItem button key="cc-report" onClick={() => handleTaxesByCompanyReportClick()}
+                                      className={classes.nested}>
+                                <ListItemIcon>
+                                </ListItemIcon>
+                                <ListItemText primary="Analisis Iva"/>
+                            </ListItem>
+                            <ListItem button key="cc-report" onClick={() => handleSalesByClientReportClick()}
+                                      className={classes.nested}>
+                                <ListItemIcon>
+                                </ListItemIcon>
+                                <ListItemText primary="Resumen de Compras por Cliente"/>
+                            </ListItem>
                         </List>
                     </Collapse>
                 </List>
@@ -530,6 +562,24 @@ function App() {
                         <PurchasesRefundsComponent redirectToLogin={redirectToLogin}>
 
                         </PurchasesRefundsComponent>
+                    </Route>
+                    <Route path="/reports/purchases/by/company">
+                        <div className={classes.drawerHeader}/>
+                        <PurchasesByCompanyComponent redirectToLogin={redirectToLogin}>
+
+                        </PurchasesByCompanyComponent>
+                    </Route>
+                    <Route path="/reports/taxes/by/company">
+                        <div className={classes.drawerHeader}/>
+                        <TaxesByCompanyComponent redirectToLogin={redirectToLogin}>
+
+                        </TaxesByCompanyComponent>
+                    </Route>
+                    <Route path="/reports/sales/by/client">
+                        <div className={classes.drawerHeader}/>
+                        <SalesByClientComponent redirectToLogin={redirectToLogin}>
+
+                        </SalesByClientComponent>
                     </Route>
                     <Route path="/">
                         <Login openLoginForm={openLoginForm}

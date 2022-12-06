@@ -80,7 +80,7 @@ class ClientSelectForm extends React.Component {
                         label="Seleccione un Reparto"
                         value={delivery.id}
                         key={delivery.id} name={delivery.name}
-                    >{delivery.id} - {delivery.name}</MenuItem>
+                    >{delivery.code} - {delivery.name}</MenuItem>
                 );
             });
         }

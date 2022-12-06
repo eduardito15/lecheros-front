@@ -60,6 +60,42 @@ class ReportsService {
                 headers: authHeader()
             });
     }
+
+    purchasesByCompany(from, to, delivery, company) {
+        return axios
+            .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/report/purchases/by/company", {
+                from: from,
+                to: to,
+                delivery: delivery,
+                company: company
+            }, {
+                headers: authHeader()
+            });
+    }
+
+    taxesByCompany(from, to, company) {
+        return axios
+            .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/report/taxes/by/company", {
+                from: from,
+                to: to,
+                company: company
+            }, {
+                headers: authHeader()
+            });
+    }
+
+    salesByClient(from, to, client) {
+        return axios
+            .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/report/sales/by/client", {
+                from: from,
+                to: to,
+                client: {
+                    id: client.id
+                }
+            }, {
+                headers: authHeader()
+            });
+    }
 }
 
 export default new ReportsService();

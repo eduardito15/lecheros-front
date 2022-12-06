@@ -224,6 +224,20 @@ class DocumentService {
             });
     }
 
+    editSettlementDate(document, newSettlementDate) {
+        console.log(newSettlementDate)
+        return axios
+            .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/document/edit/settlement/date", {
+                id: document.id,
+                documentType: {
+                    type: document.documentType.type
+                },
+                settlementDate: format(newSettlementDate, 'yyyy-MM-dd')
+            }, {
+                headers : authHeader()
+            });
+    }
+
 }
 
 export default new DocumentService();

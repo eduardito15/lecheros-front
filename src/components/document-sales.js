@@ -595,7 +595,7 @@ class DocumentSales extends React.Component {
                             showForm: true,
                             showSuccessDialog: false,
                             selectedDelivery: response.data.delivery,
-                            selectedDate: response.data.date,
+                            selectedDate: new Date(response.data.date.split('-')),
                             selectedNumber: response.data.number,
                             errorMessage: null,
                             document: response.data,

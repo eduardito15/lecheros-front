@@ -5,7 +5,8 @@ import DeliveryService from "../services/delivery.service";
 import DriverService from "../services/driver.service";
 import LiquidationService from "../services/liquidation.service";
 import ServiceHelper from "../services/service.helper";
-import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import { MuiPickersUtilsProvider} from "@material-ui/pickers";
+import { DatePicker } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -14,6 +15,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Button from "@material-ui/core/Button";
 import ViewLiquidationDocumentsComponent from "./forms/view-liquidation-documents.component";
 import DocumentForm from "./forms/document.form";
+import { InputLabel } from "@material-ui/core";
 
 const useStyles = theme => ({
     button: {
@@ -103,6 +105,7 @@ class LiquidationComponent extends React.Component {
         this.showLiquidationPurchasesForm = this.showLiquidationPurchasesForm.bind(this);
         this.closeLiquidationInventoryForm = this.closeLiquidationInventoryForm.bind(this);
         this.closeLiquidationSalesForm = this.closeLiquidationSalesForm.bind(this);
+        this.callLiquidate = this.callLiquidate.bind(this);
     }
 
     componentDidMount() {
@@ -173,12 +176,14 @@ class LiquidationComponent extends React.Component {
     }
 
     onChangeDate(date) {
+        this.cleanForm();
         this.setState({
             date: date
         })
     }
 
     onChangeDelivery(event) {
+        this.cleanForm();
         const selectedDelivery = this.state.deliveries.find(d => {
             return d.id === event.target.value;
         });
@@ -202,13 +207,22 @@ class LiquidationComponent extends React.Component {
     }
 
     onChangeDriver(event) {
+        console.log('on change driver')
+        console.log(this.state.drivers)
+        console.log(event.target.value)
         const selectedDriver = this.state.drivers.find(d => {
             return d.id === event.target.value;
         });
         this.setState({
             selectedDriver: selectedDriver
         });
-        this.liquidate(this.state.date, this.state.selectedDelivery, selectedDriver, 0, 0);
+        //this.liquidate(this.state.date, this.state.selectedDelivery, selectedDriver, 0, 0);
+    }
+
+    callLiquidate() {
+        if (this.state.selectedDelivery.id != null) {
+            this.liquidate(this.state.date, this.state.selectedDelivery, this.state.selectedDriver, 0, 0);
+        }
     }
 
     handleCloseFailedDialog() {
@@ -254,12 +268,16 @@ class LiquidationComponent extends React.Component {
             .then(
                 (response) => {
                     if (response != null) {
-                        console.log(response.data);
                         this.setState({
                             liquidation: response.data,
                             cash: response.data.cashDelivery,
                             diffCorrection: response.data.differenceCorrection,
                         });
+                        if (response.data.selectedDelivery != null) {
+                            this.setState({
+                                selectedDriver: response.data.driver
+                            });
+                        } 
                     } else {
                         this.manageRequestErrors('No hay respuesta del servidor.');
                     }
@@ -410,6 +428,44 @@ class LiquidationComponent extends React.Component {
         event.target.select();
     }
 
+    cleanForm() {
+        this.setState({
+            showFailedDialog: false,
+            resultDialogMessage: null,
+            selectedDelivery: {
+                id: null
+            },
+            selectedDriver: {
+                id: null
+            },
+            liquidation: {
+                id: null,
+                previousBalance: 0,
+                purchases: 0,
+                utility: 0,
+                referMilk: 0,
+                debt: 0,
+                inventory: 0,
+                companyTrust: 0,
+                difference: 0
+            },
+            cash: 0,
+            diffCorrection: 0,
+            showLiquidationDocumentsForm: false,
+            liquidationPurchases: [],
+            showLiquidationInventory: false,
+            liquidationInventory: {
+                rows: [],
+                subTotal: 0,
+                totalMinimTax: 0,
+                totalBasicTax: 0,
+                total: 0
+            },
+            showLiquidationSaleDocumentsForm: false,
+            liquidationSales: [],
+        });
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -420,23 +476,18 @@ class LiquidationComponent extends React.Component {
                 </Typography>
                 <div>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-
-                        <KeyboardDatePicker
-                            autoOk
-                            id="date_picker"
-                            variant="inline"
-                            inputVariant="outlined"
-                            label="Fecha"
-                            format="dd/MM/yyyy"
-                            value={this.state.date}
-                            InputAdornmentProps={{position: "start"}}
-                            onChange={date => this.onChangeDate(date)}
-                            className={classes.textField}
-                            style={{width: '40%'}}
-                            onKeyPress={this.onPressKeyInDate}
-
-                        />
+                    <DatePicker
+                        id="date_picker"
+                        label="Fecha"
+                        value={this.state.date}
+                        onChange={date => this.onChangeDate(date)}
+                        style={{width: '40%'}}
+                        animateYearScrolling
+                        format="dd/MM/yyyy"
+                        onKeyPress={this.onPressKeyInDate}
+                    />
                     </MuiPickersUtilsProvider>
+                    
                     {this.state.liquidation.closed ? <Button
                         variant="contained"
                         color="primary"
@@ -470,14 +521,15 @@ class LiquidationComponent extends React.Component {
                     </TextField>
                 </div>
                 <div>
+                    <InputLabel className={classes.drawerHeader}>Chofer</InputLabel>
                     <TextField
                         id="driver_select"
                         select
-                        label="Chofer"
                         value={this.state.selectedDriver.id}
                         onChange={this.onChangeDriver}
                         style={{width: '40%'}}
                         onKeyDown={this.onPressKeyInDriver}
+                        onFocus={this.callLiquidate}
                     >
                         {this.renderDriverOptions()}
                     </TextField>

@@ -30,6 +30,7 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert"
+import EditSettlementDateForm from "./forms/edit-purchase-settlement-date.form";
 
 const useStyles = theme => ({
     button: {
@@ -114,7 +115,9 @@ class Documents extends React.Component {
                 name: '',
                 address: ''
             },
-            documentCreated: false
+            documentCreated: false,
+            newSettlementDate: new Date(),
+            showEditSettlementDateDialog: false
         }
 
         this.handleNewClick = this.handleNewClick.bind(this);
@@ -160,6 +163,11 @@ class Documents extends React.Component {
         this.confirmDelete = this.confirmDelete.bind(this);
         this.editRow = this.editRow.bind(this);
         this.onChangeSelectedClient = this.onChangeSelectedClient.bind(this);
+
+        this.handleEditSettlementDate = this.handleEditSettlementDate.bind(this);
+        this.handleCloseEditSettlementDate = this.handleCloseEditSettlementDate.bind(this);
+        this.handleEditSettlementDateClick = this.handleEditSettlementDateClick.bind(this);
+        this.onChangeSettlementDate = this.onChangeSettlementDate.bind(this);
     }
 
     componentDidMount() {
@@ -596,7 +604,7 @@ class Documents extends React.Component {
                             showForm: true,
                             showSuccessDialog: false,
                             selectedDelivery: response.data.delivery,
-                            selectedDate: response.data.date,
+                            selectedDate: new Date(response.data.date.split('-')),
                             selectedNumber: response.data.number,
                             errorMessage: null,
                             document: response.data,
@@ -988,6 +996,53 @@ class Documents extends React.Component {
         }
     }
 
+    handleEditSettlementDateClick() {
+        console.log(this.state.selectedDocument)
+        this.setState({
+            showEditSettlementDateDialog: true,
+            document: this.state.selectedDocument,
+            newSettlementDate: new Date(this.state.selectedDocument.settlementDate.split('-'))
+        });
+    }
+
+    handleEditSettlementDate() {
+        DocumentService.editSettlementDate(this.state.document, this.state.newSettlementDate)
+            .then(
+                (response) => {
+                    if (response != null) {
+                        this.setState({
+                            anchorElDocument: null,
+                            showEditSettlementDateDialog: false,
+                            showSuccessDialog: true,
+                            resultDialogMessage: 'Fecha de Liquidación cambiada con exito',
+                            selectedNumber: null,
+                            errorMessage: null,
+                            document: response.data,
+                        });
+                    } else {
+                        this.manageRequestErrors('No hay respuesta del servidor');
+                    }
+                    this.getAll();
+                },
+                (error) => {
+                    this.manageRequestErrors(ServiceHelper.getErrorMessage(error));
+                }
+            );
+    }
+
+    handleCloseEditSettlementDate() {
+        this.setState({
+            anchorElDocument: null,
+            showEditSettlementDateDialog: false,
+        });
+    }
+
+    onChangeSettlementDate(date) {
+        this.setState({
+            newSettlementDate: date
+        })
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -1101,6 +1156,9 @@ class Documents extends React.Component {
                                             <MenuItem value={'changeDocumentType'}
                                                       onClick={this.handleEditDocumentTypeClick}> Cambiar
                                                 Tipo</MenuItem>
+                                            <MenuItem value={'changeSettlementDate'}
+                                                      onClick={this.handleEditSettlementDateClick}> Cambiar
+                                                Fecha de Liquidación</MenuItem>
                                         </Menu>
                                     </div>
                                     : ''}
@@ -1328,6 +1386,17 @@ class Documents extends React.Component {
                                               onChangeDocumentType={this.onChangeDocumentType}
                                               handleEditDocumentType={this.handleEditDocumentType}
 
+                        />
+                    </div> : ''
+                }
+                {this.state.showEditSettlementDateDialog ?
+                    <div>
+                        <EditSettlementDateForm open={this.state.showEditSettlementDateDialog}
+                                                handleEditSettlementDate={this.handleEditSettlementDate}
+                                                handleCloseEditSettlementDate={this.handleCloseEditSettlementDate}
+                                                message={this.state.errorMessage}
+                                                settlementDate={this.state.newSettlementDate}
+                                                onChangeSettlementDate={this.onChangeSettlementDate}
                         />
                     </div> : ''
                 }
