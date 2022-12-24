@@ -64,6 +64,25 @@ class LiquidationService {
                 headers : authHeader()
             });
     }
+
+    updateStatus(id, closed) {
+        return axios
+            .patch(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/liquidation/status", {
+                id: id,
+                closed: closed
+            }, {
+                headers : authHeader()
+            });
+    }
+
+    dayLiquidations() {
+        return axios
+            .get(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/liquidation/day", {
+                headers : authHeader()
+            });
+    }
+
+
 }
 
 export default new LiquidationService();

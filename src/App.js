@@ -51,6 +51,8 @@ import PurchasesRefundsComponent from "./components/reports/purchases-refunds"
 import PurchasesByCompanyComponent from "./components/reports/purchases-by-company"
 import TaxesByCompanyComponent from "./components/reports/taxes-by-company"
 import SalesByClientComponent from "./components/reports/sales-by-client"
+import DiscountsByClientComponent from "./components/reports/discounts-by-client"
+
 
 const drawerWidth = 280;
 
@@ -261,6 +263,10 @@ function App() {
         history.push("/reports/sales/by/client");
     }
 
+    const handleDiscountsByClientReportClick = () => {
+        history.push("/reports/discounts/by/client");
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline/>
@@ -462,6 +468,12 @@ function App() {
                                 </ListItemIcon>
                                 <ListItemText primary="Resumen de Compras por Cliente"/>
                             </ListItem>
+                            <ListItem button key="cc-report" onClick={() => handleDiscountsByClientReportClick()}
+                                      className={classes.nested}>
+                                <ListItemIcon>
+                                </ListItemIcon>
+                                <ListItemText primary="Consultar Descuentos"/>
+                            </ListItem>
                         </List>
                     </Collapse>
                 </List>
@@ -580,6 +592,12 @@ function App() {
                         <SalesByClientComponent redirectToLogin={redirectToLogin}>
 
                         </SalesByClientComponent>
+                    </Route>
+                    <Route path="/reports/discounts/by/client">
+                        <div className={classes.drawerHeader}/>
+                        <DiscountsByClientComponent redirectToLogin={redirectToLogin}>
+
+                        </DiscountsByClientComponent>
                     </Route>
                     <Route path="/">
                         <Login openLoginForm={openLoginForm}

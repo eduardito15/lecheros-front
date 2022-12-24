@@ -225,7 +225,6 @@ class DocumentService {
     }
 
     editSettlementDate(document, newSettlementDate) {
-        console.log(newSettlementDate)
         return axios
             .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/document/edit/settlement/date", {
                 id: document.id,
@@ -234,6 +233,13 @@ class DocumentService {
                 },
                 settlementDate: format(newSettlementDate, 'yyyy-MM-dd')
             }, {
+                headers : authHeader()
+            });
+    }
+
+    getDayDocumentsResume(documentTypeEnum) {
+        return axios
+            .get(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/document/day/resume/" + documentTypeEnum, {
                 headers : authHeader()
             });
     }

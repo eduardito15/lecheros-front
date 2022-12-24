@@ -1,6 +1,6 @@
 
-const HOST = 'http://localhost:8080'
-//const HOST = 'http://lecheros-api.evecino.net'
+//const HOST = 'http://localhost:8080'
+const HOST = 'http://lecheros-api.evecino.net'
 
 const LECHEROS_API_PATH = "/lecheros/api"
 const TAX_PATH = HOST + LECHEROS_API_PATH +  '/tax'

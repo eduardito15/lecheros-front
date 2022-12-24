@@ -96,6 +96,19 @@ class ReportsService {
                 headers: authHeader()
             });
     }
+
+    discountsByClient(from, to, client) {
+        return axios
+            .post(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/report/discounts/by/client", {
+                from: from,
+                to: to,
+                client: {
+                    id: client.id
+                }
+            }, {
+                headers: authHeader()
+            });
+    }
 }
 
 export default new ReportsService();

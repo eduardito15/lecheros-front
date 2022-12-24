@@ -16,6 +16,9 @@ import Button from "@material-ui/core/Button";
 import ViewLiquidationDocumentsComponent from "./forms/view-liquidation-documents.component";
 import DocumentForm from "./forms/document.form";
 import { InputLabel } from "@material-ui/core";
+import axios from "axios";
+import authHeader from "../services/auth-header"
+import PrintIcon from "@material-ui/icons/Print";
 
 const useStyles = theme => ({
     button: {
@@ -106,6 +109,7 @@ class LiquidationComponent extends React.Component {
         this.closeLiquidationInventoryForm = this.closeLiquidationInventoryForm.bind(this);
         this.closeLiquidationSalesForm = this.closeLiquidationSalesForm.bind(this);
         this.callLiquidate = this.callLiquidate.bind(this);
+        this.printLiquidation = this.printLiquidation.bind(this);
     }
 
     componentDidMount() {
@@ -207,9 +211,6 @@ class LiquidationComponent extends React.Component {
     }
 
     onChangeDriver(event) {
-        console.log('on change driver')
-        console.log(this.state.drivers)
-        console.log(event.target.value)
         const selectedDriver = this.state.drivers.find(d => {
             return d.id === event.target.value;
         });
@@ -273,7 +274,7 @@ class LiquidationComponent extends React.Component {
                             cash: response.data.cashDelivery,
                             diffCorrection: response.data.differenceCorrection,
                         });
-                        if (response.data.selectedDelivery != null) {
+                        if (response.data.driver != null) {
                             this.setState({
                                 selectedDriver: response.data.driver
                             });
@@ -329,7 +330,6 @@ class LiquidationComponent extends React.Component {
                 .then(
                     (response) => {
                         if (response != null) {
-                            console.log(response);
                             this.setState({
                                 liquidationInventory: response.data,
                             });
@@ -371,11 +371,68 @@ class LiquidationComponent extends React.Component {
     }
 
     closeLiquidation() {
-        this.weAreInLiquidation();
+        if (this.weAreInLiquidation()) {
+            LiquidationService.updateStatus(this.state.liquidation.id, true)
+                .then(
+                    (response) => {
+                        if (response != null) {
+                            this.setState({
+                                liquidation: response.data
+                            });
+                        } else {
+                            this.manageRequestErrors('No hay respuesta del servidor.');
+                        }
+                    },
+                    (error) => {
+                        this.manageRequestErrors(ServiceHelper.getErrorMessage(error));
+                    }
+                )
+        }
+
     }
 
     openLiquidation() {
-        this.weAreInLiquidation();
+        if (this.weAreInLiquidation()) {
+            LiquidationService.updateStatus(this.state.liquidation.id, false)
+            .then(
+                (response) => {
+                    if (response != null) {
+                        this.setState({
+                            liquidation: response.data
+                        });
+                    } else {
+                        this.manageRequestErrors('No hay respuesta del servidor.');
+                    }
+                },
+                (error) => {
+                    this.manageRequestErrors(ServiceHelper.getErrorMessage(error));
+                }
+            )
+        }
+    }
+
+    printLiquidation() {
+        try {
+            axios
+              .get(ServiceHelper.getHost() + ServiceHelper.getLecherosApiPath() + "/liquidation/print/" + this.state.liquidation.id, {
+                responseType: "blob",
+                headers : authHeader()
+              })
+              .then((response) => {
+                //Create a Blob from the PDF Stream
+                const file = new Blob([response.data], { type: "application/pdf" });
+                //Build a URL from the file
+                const fileURL = URL.createObjectURL(file);
+                //Open the URL on new Window
+                 const pdfWindow = window.open();
+                 pdfWindow.location.href = fileURL;            
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          } catch (error) {
+            return { error };
+          }
     }
 
     weAreInLiquidation() {
@@ -475,6 +532,17 @@ class LiquidationComponent extends React.Component {
                     Liquidación
                 </Typography>
                 <div>
+                <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        style={{width: '25%', float: 'right'}}
+                        onClick={this.printLiquidation}
+                        startIcon={<PrintIcon/>}>
+                            Imprimir
+                    </Button>
+                </div>
+                <div>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DatePicker
                         id="date_picker"
@@ -497,7 +565,7 @@ class LiquidationComponent extends React.Component {
                     >
                         Abrir
                     </Button> : ''}
-                    {/*{!this.state.liquidation.closed ? <Button
+                    {!this.state.liquidation.closed ? <Button
                         variant="contained"
                         color="primary"
                         className={classes.button}
@@ -505,7 +573,7 @@ class LiquidationComponent extends React.Component {
                         onClick={this.closeLiquidation}
                     >
                         Cerrar
-                    </Button> : ''}*/}
+                    </Button> : ''}
                 </div>
                 <div>
                     <TextField
